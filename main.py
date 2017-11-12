@@ -1,4 +1,5 @@
 import numpy as np
+from scipy import stats
 import pandas as pd
 from sklearn import preprocessing
 from sklearn.metrics import accuracy_score
@@ -6,6 +7,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import cross_val_score
+from sklearn.ensemble import VotingClassifier
 
 
 class Classifier(object):
@@ -13,9 +15,7 @@ class Classifier(object):
   def __init__(self):
     self.train_shape_view = None
     self.train_rgb_view = None
-    self.clf = None
     return
-
     
   def readViews(self):
       self.train_shape_view = pd.read_csv('train.csv', header=0, index_col=None, usecols=[*range(0,10)])
@@ -41,19 +41,18 @@ class Classifier(object):
       return train_set_predictors, train_set_labels_numeric, test_set_predictors, test_set_labels_numeric
   
   def bayes(self, train_set_predictors, train_set_labels):
-      self.clf = GaussianNB()
-      self.clf.fit(train_set_predictors, train_set_labels)
-      return
+      clf = GaussianNB()
+      clf.fit(train_set_predictors, train_set_labels)
+      return clf
   
   def knn(self, train_set_predictors, train_set_labels):
       k = self.findK(train_set_predictors, train_set_labels)
-      self.clf = KNeighborsClassifier(n_neighbors=k, p=1)
-      self.clf.fit(train_set_predictors, train_set_labels)
-      return
+      clf = KNeighborsClassifier(n_neighbors=k, p=1)
+      clf.fit(train_set_predictors, train_set_labels)
+      return clf
   
-  def testClassifier(self, test_set_predictors, test_set_labels):
-      target_pred = self.clf.predict(test_set_predictors)
-      
+  def testClassifier(self, clf, test_set_predictors, test_set_labels):
+      target_pred = clf.predict(test_set_predictors)
       test_accuracy = accuracy_score(test_set_labels, target_pred)
       print(test_accuracy)
 
@@ -63,18 +62,35 @@ class Classifier(object):
     cv_scores = []
     ks = [1, 3, 5, 7, 9, 11, 13]
     for k in ks:
-      #print(k)
       knn = KNeighborsClassifier(n_neighbors=k, p=1)
       scores = cross_val_score(knn, train_set_predictors, train_set_labels, cv=10, scoring='accuracy')
       mean = scores.mean()
-      #print(mean)
       cv_scores.append(mean)
 
     mse = [1 - x for x in cv_scores]
-    optimal_k = ks[mse.index(min(mse))]
-    #print(optimal_k)
+    optimal_k = ks[mse.index(min(mse))] 
 
     return optimal_k
+
+  def classifierCombination(self, train_set_predictors_v1, train_set_labels_v1, test_set_predictors_v1, train_set_predictors_v2, train_set_labels_v2, test_set_predictors_v2, test_set_labels):
+    #TODO: PARALELIZAR O TREINAMENTO
+    bayes_view1 = self.bayes(train_set_predictors_v1, train_set_labels_v1)
+    bayes_view2 = self.bayes(train_set_predictors_v2, train_set_labels_v2)
+    knn_view1 = self.knn(train_set_predictors_v1, train_set_labels_v1)
+    knn_view2 = self.knn(train_set_predictors_v2, train_set_labels_v2)
+
+    # print(test_set_labels.size)
+    targets_pred = np.empty(shape=(0,test_set_labels.size))
+    
+    targets_pred = np.vstack((targets_pred, bayes_view1.predict(test_set_predictors_v1)))
+    targets_pred = np.vstack((targets_pred, bayes_view2.predict(test_set_predictors_v2)))
+    targets_pred = np.vstack((targets_pred, knn_view1.predict(test_set_predictors_v1)))
+    targets_pred = np.vstack((targets_pred, knn_view2.predict(test_set_predictors_v2)))
+    
+    target_pred = stats.mode(targets_pred).mode[0]
+    test_accuracy = accuracy_score(test_set_labels, target_pred)
+    print(test_accuracy)
+    return
 
   def process(self, view):
     self.readViews()
@@ -85,19 +101,36 @@ class Classifier(object):
       print("RGB View:")
       train_set_predictors, train_set_labels, test_set_predictors, test_set_labels = classifier.preProcess(classifier.train_rgb_view)
     else:
+      train_set_predictors_shape, train_set_labels_shape, test_set_predictors_shape, test_set_labels = classifier.preProcess(classifier.train_shape_view)
+      train_set_predictors_rgb, train_set_labels_rgb, test_set_predictors_rgb, test_set_labels = classifier.preProcess(classifier.train_rgb_view)
+      self.classifierCombination(train_set_predictors_shape, train_set_labels_shape, test_set_predictors_shape, train_set_predictors_rgb, train_set_labels_rgb, test_set_predictors_rgb, test_set_labels)
       return
     
     print("-Bayes:")
-    classifier.bayes(train_set_predictors, train_set_labels)
-    classifier.testClassifier(test_set_predictors, test_set_labels)
+    clf = classifier.bayes(train_set_predictors, train_set_labels)
+    classifier.testClassifier(clf, test_set_predictors, test_set_labels)
     print("-KNN:")
-    classifier.knn(train_set_predictors, train_set_labels)
-    classifier.testClassifier(test_set_predictors, test_set_labels)
+    clf = classifier.knn(train_set_predictors, train_set_labels)
+    classifier.testClassifier(clf, test_set_predictors, test_set_labels)
      
     return
 
+def majorityVote(self, train_set_predictors, train_set_labels, test_set_predictors, target_pred):
+  c_bayes = GaussianNB()
+  k = self.findK(train_set_predictors, train_set_labels)
+  c_knn = KNeighborsClassifier(n_neighbors=k, p=1)
+  classifier_final = VotingClassifier(estimators=[('bayes', c_bayes), ('knn', c_knn)], voting='hard')
+  classifier_final.fit(train_set_predictors, train_set_labels)
+  
+  target_pred = classifier_final.predict(test_set_predictors)
+  test_accuracy = accuracy_score(test_set_labels, target_pred)
+  print(test_accuracy)
+  
+  return
 
 classifier = Classifier()
-classifier.process("shape")
-classifier.process("rgb")
+classifier.process(None)
+# classifier.process("shape")
+# classifier.process("rgb")
+
 
