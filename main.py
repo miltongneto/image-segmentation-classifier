@@ -8,6 +8,7 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import cross_val_score
 from sklearn.ensemble import VotingClassifier
+from sklearn.model_selection import KFold
 
 
 class Classifier(object):
@@ -18,8 +19,8 @@ class Classifier(object):
     return
 
   def readViews(self):
-      self.train_shape_view = pd.read_csv('train.csv', header=0, index_col=None, usecols=range(1,10))
-      self.train_rgb_view = pd.read_csv('train.csv', header=0, index_col=None, usecols=range(10,20))
+      self.train_shape_view = pd.read_csv('train.csv', header=0, index_col=None, usecols=[*range(0,10)])
+      self.train_rgb_view = pd.read_csv('train.csv', header=0, index_col=None, usecols=[0, *range(10,20)])
       #test_df = pd.read_csv('test.csv', header=0, index_col=None)
 
       return
@@ -60,17 +61,37 @@ class Classifier(object):
 
   def findK(self, train_set_predictors, train_set_labels):
     cv_scores = []
+    cv_scores2 = []
+    scores2 = []
     ks = [1, 3, 5, 7, 9, 11, 13]
+    
     for k in ks:
       knn = KNeighborsClassifier(n_neighbors=k, p=1)
       scores = cross_val_score(knn, train_set_predictors, train_set_labels, cv=10, scoring='accuracy')
       mean = scores.mean()
       cv_scores.append(mean)
 
+      #scores2 = self.cross_validate(knn,train_set_predictors, train_set_labels)
+      #cv_scores2.append(scores2)
+    
     mse = [1 - x for x in cv_scores]
     optimal_k = ks[mse.index(min(mse))]
 
     return optimal_k
+
+  def cross_validate(self, knn, train_set_predictors, train_set_labels):
+    kf = KFold(n_splits=10)
+    scores = []
+    predictors_set = np.array(train_set_predictors)
+    label_set = np.array(train_set_labels)
+        
+    for train_index, test_index in kf.split(predictors_set):
+      knn.fit(predictors_set[train_index], label_set[train_index])
+      target_pred = knn.predict(predictors_set[test_index])
+      score = accuracy_score(label_set[test_index], target_pred)
+      scores.append(score)
+      mean = np.mean(scores);
+    return mean
 
   def classifierCombination(self, train_set_predictors_v1, train_set_labels_v1, test_set_predictors_v1, train_set_predictors_v2, train_set_labels_v2, test_set_predictors_v2, test_set_labels):
     #TODO: PARALELIZAR O TREINAMENTO
@@ -128,7 +149,7 @@ def majorityVote(self, train_set_predictors, train_set_labels, test_set_predicto
 
   return
 
-#classifier = Classifier()
-#classifier.process(None)
+classifier = Classifier()
+classifier.process(None)
 # classifier.process("shape")
 # classifier.process("rgb")
