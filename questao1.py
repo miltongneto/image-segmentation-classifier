@@ -19,17 +19,22 @@ import clustering
 
 if __name__ == '__main__':
     
+    train_classes = pd.read_csv('train.csv', header=0, index_col=None, usecols=range(0,1))
     train_shape_view = pd.read_csv('train.csv', header=0, index_col=None, usecols=range(1,10))
     train_rgb_view = pd.read_csv('train.csv', header=0, index_col=None, usecols=range(10,20))
     
-    dm1 = pdist(train_shape_view.as_matrix(), 'euclidean')
-    dm2 = pdist(train_rgb_view.as_matrix(), 'euclidean')
+    #dm1 = pdist(train_shape_view.as_matrix(), 'euclidean')
+    #dm2 = pdist(train_rgb_view.as_matrix(), 'euclidean')
 
-    clustering = clustering.hardClustering.HardClustering(7, 3, train_shape_view, train_rgb_view)
-    for i in range(100):
-    	if(clustering.run()):
+    hdCluster = clustering.hardClustering.HardClustering(7, 3, train_shape_view, train_rgb_view)
+    for i in range(10):
+    	if(hdCluster.run()):
     		print('Reached a local minimum')
 
     	print(str(i) + '/100 iterations done')
 
-    clustering.printLog()
+    hdCluster.printLog()
+
+    knownCluster = clustering.gtClustering.GroundTruthClustering(train_classes)
+    knownCluster.printLog()
+

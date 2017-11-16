@@ -114,15 +114,13 @@ class HardClustering(object):
         print("\n -- CLUSTER STATE --\n");
             
         for i in range(len(self.clusters)):
-            print("[" + str(i) + "]:")
-            self.clusters[i].printStuff()
+            print("[" + str(i) + "]: ", self.clusters[i].tostr())
             print("")
         
         print("\n -- PROTOTYPE STATE --\n");
 
         for i in range(len(self.clusters)):
-            print("[" + str(i) + "]: ")
-            self.clusters[i].prototype.printStuff()
+            print("[" + str(i) + "]: ", self.clusters[i].prototype.tostr())
             print("")
         
         print("\n -- WEIGHT STATE --\n");

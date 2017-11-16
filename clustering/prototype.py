@@ -35,7 +35,17 @@ class Prototype(object):
         
         return d
     
-    def printStuff(self):
+    def tostr(self):
+        mystr = ''
+        counter = 0
         for i in range(len(self.prototypes)):
-            print(str(self.prototypes[i]) + ", ")
-            
+            print()
+            counter += 1
+
+            if counter == 10:
+                mystr += '\n'
+                counter = 0
+
+            mystr += str(self.prototypes[i]) + ", "
+
+        return mystr

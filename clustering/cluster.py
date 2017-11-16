@@ -32,6 +32,16 @@ class Cluster(object):
             
         return d;
         
-    def printStuff(self):
+    def tostr(self):
+        mystr = ''
+        counter = 0
         for element in self.elements:
-            print(str(element) + ", ")
+            counter += 1
+
+            if counter == 10:
+                mystr += '\n'
+                counter = 0
+
+            mystr += str(element) + ", "
+
+        return mystr
