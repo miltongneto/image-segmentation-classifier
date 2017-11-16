@@ -18,7 +18,7 @@ class HardClustering(object):
     def findBestPrototypes(self):
         
         for k in range(len(self.clusters)):
-            #this should be ordered in descending order by the first column
+            #this should be ordered in ascending order by the first column
             closest = np.arange(self.n*2).reshape(self.n, 2)
 
             for i in range(self.n):
@@ -26,14 +26,16 @@ class HardClustering(object):
                 closest[i][0] = d
                 closest[i][1] = i
 
+            #print('bef ', closest)
             closest = closest[closest[:,0].argsort()]
-
+            #print('aft ', closest)
             prototypes = np.arange(self.clusters[k].prototype.getQ())
             for i in range(self.clusters[k].prototype.getQ()):
-                prototypes[i] = closest[0][1]
-                closest = np.delete(closest, 0, 0)
+                prototypes[i] = closest[i][1]
 
+            #print('bef ', self.clusters[k].prototype.prototypes)
             self.clusters[k].prototype.set(prototypes)
+            #print('aft ', self.clusters[k].prototype.prototypes)
 
     def findBestWeights(self):
         p = len(self.dissimilarities)

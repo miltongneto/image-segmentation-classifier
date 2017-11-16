@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.spatial.distance import pdist
 import random
 
 class Dissimilarity(object):
@@ -10,7 +11,9 @@ class Dissimilarity(object):
 
         for i in range(len(view)):
             for j in range(i, len(view.values[0])):
-                self.matrix[i][j] = np.linalg.norm(tempView[i]-tempView[j])
+                mat = [tempView[i], tempView[j]]
+                self.matrix[i][j] = pdist(mat, 'euclidean')
+                #self.matrix[i][j] = np.linalg.norm(tempView[i]-tempView[j])
 
         return
 
