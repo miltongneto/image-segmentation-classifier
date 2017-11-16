@@ -94,7 +94,7 @@ class HardClustering(object):
             self.belongsTo[point] = cluster
             self.clusters[cluster].insert(point)
 
-        return
+        return 
 
     def run(self):
         self.t += 1
