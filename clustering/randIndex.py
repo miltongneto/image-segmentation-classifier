@@ -13,12 +13,9 @@ class RandIndex(object):
         self.contingency = np.arange(len(a)*len(b)).reshape(len(a), len(b))
         for i in range(len(a)):
             for j in range(len(b)):
-                inter = self.intersection(a[i], b[j])
-                self.contingency[i][j] = inter
+                self.contingency[i][j] = self.intersection(a[i], b[j])
                 self.rSum[i] += self.contingency[i][j]
                 self.cSum[j] += self.contingency[i][j]
-
-        print('Contingency: ', self.contingency[0][0])
         self.calculateAdjustedIndex()
 
         return

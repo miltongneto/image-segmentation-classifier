@@ -10,11 +10,10 @@ class Dissimilarity(object):
         tempView = np.asarray(view.values)
 
         for i in range(len(view)):
-            for j in range(i, len(view.values[0])):
+            for j in range(i, len(view)):
                 mat = [tempView[i], tempView[j]]
                 self.matrix[i][j] = pdist(mat, 'euclidean')
                 #self.matrix[i][j] = np.linalg.norm(tempView[i]-tempView[j])
-
         return
 
     def get(self, i, j):

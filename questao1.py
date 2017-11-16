@@ -27,7 +27,7 @@ if __name__ == '__main__':
     #dm2 = pdist(train_rgb_view.as_matrix(), 'euclidean')
 
     hdCluster = clustering.hardClustering.HardClustering(7, 3, train_shape_view, train_rgb_view)
-    for i in range(10):
+    for i in range(100):
     	if(hdCluster.run()):
     		print('Reached a local minimum')
 
