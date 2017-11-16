@@ -38,3 +38,6 @@ if __name__ == '__main__':
     knownCluster = clustering.gtClustering.GroundTruthClustering(train_classes)
     knownCluster.printLog()
 
+    rand = clustering.randIndex.RandIndex(len(train_classes), hdCluster.getClusters(), knownCluster.getClusters())
+    rand.printContingency()
+    print("\n -- AJUSTED RAND INDEX -- \n", rand.getAdjusted())
