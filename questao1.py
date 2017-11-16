@@ -18,19 +18,14 @@ import clustering
 
 
 if __name__ == '__main__':
-
-    classifier = Classifier()
-    classifier.readViews()
-    teste = classifier.train_shape_view.as_matrix();
-    teste2 = classifier.train_rgb_view.as_matrix()
-
-    #matrizes de dissimilaridade
-
-    dm1 = pdist(teste, 'euclidean')
-    dm2 = pdist(teste2, 'euclidean')
     
-    #print(classifier.train_shape_view)
-    clustering = clustering.hardClustering.HardClustering(7, 3, classifier.train_shape_view, classifier.train_rgb_view)
+    train_shape_view = pd.read_csv('train.csv', header=0, index_col=None, usecols=range(1,10))
+    train_rgb_view = pd.read_csv('train.csv', header=0, index_col=None, usecols=range(10,20))
+    
+    dm1 = pdist(train_shape_view.as_matrix(), 'euclidean')
+    dm2 = pdist(train_rgb_view.as_matrix(), 'euclidean')
+
+    clustering = clustering.hardClustering.HardClustering(7, 3, train_shape_view, train_rgb_view)
     for i in range(100):
     	if(clustering.run()):
     		print('Reached a local minimum')
