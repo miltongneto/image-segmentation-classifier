@@ -10,14 +10,15 @@ class RandIndex(object):
         self.rSum = [0]*len(a)
         self.cSum = [0]*len(b)
 
-        self.contingency = [[0]*len(b)]*len(a)
-
+        self.contingency = np.arange(len(a)*len(b)).reshape(len(a), len(b))
         for i in range(len(a)):
             for j in range(len(b)):
-                self.contingency[i][j] = self.intersection(a[i], b[j])
+                inter = self.intersection(a[i], b[j])
+                self.contingency[i][j] = inter
                 self.rSum[i] += self.contingency[i][j]
                 self.cSum[j] += self.contingency[i][j]
 
+        print('Contingency: ', self.contingency[0][0])
         self.calculateAdjustedIndex()
 
         return
@@ -27,21 +28,24 @@ class RandIndex(object):
 
     def printContingency(self):
         print("\n -- CONTINGENCY TABLE -- \n\n");
-        mystr = ''
         for i in range(len(self.contingency)):
+            mystr = ''
             for j in range(len(self.contingency[i])):
                 mystr += str(self.contingency[i][j]) + ' '
             
             print(mystr, "| ", self.rSum[i]);
         
+        mystr = ''
         for j in range(len(self.contingency[0])):
-            print("___ ");
-        
+            mystr += "___ "
+        print(mystr)
+
+        mystr = ''
         print("\n");
         for j in range(len(self.contingency[0])):
-            print(self.cSum[j], ' ');
+            mystr += str(self.cSum[j]) + ' '
         
-        print("\n");
+        print(mystr)
         
     def intersection(self, a, b):
         soma = 0
