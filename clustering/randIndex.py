@@ -26,25 +26,46 @@ class RandIndex(object):
         return self.adjusted
 
     def printContingency(self):
-        print("\n -- CONTINGENCY TABLE -- \n\n");
-        for i in range(len(self.contingency)):
-            mystr = ''
-            for j in range(len(self.contingency[i])):
-                mystr += str(self.contingency[i][j]) + ' '
-            
-            print(mystr, "| ", self.rSum[i]);
-        
-        mystr = ''
-        for j in range(len(self.contingency[0])):
-            mystr += "___ "
-        print(mystr)
+        print(self.getLog())
 
-        mystr = ''
-        print("\n");
-        for j in range(len(self.contingency[0])):
-            mystr += str(self.cSum[j]) + ' '
+    def getLog(self):
+        myStr = "\nClusters Intersection ([rows]HardCluster x GroundTruth[columns]):\n"
+        myStr += "------------------\n\n"
+        myStr += '  Ground Truth\n'
+        for i in range(len(self.contingency)):
+            if i == 0:
+                myStr += 'H '
+            elif i == 1:
+                myStr += 'a '
+            elif i == 2:
+                myStr += 'r '
+            elif i == 3:
+                myStr += 'd '
+            else:
+                myStr += '  '
+            for j in range(len(self.contingency[i])):
+                val = str(self.contingency[i][j])
+                for k in range(5-len(val)):
+                    val += ' '
+                myStr += val + ' '
+            
+            myStr += "| " + str(self.rSum[i]) + '\n'
         
-        print(mystr)
+        myStr += ' '
+        for j in range(len(self.contingency[0])):
+            myStr += " _____"
+        myStr += '\n'
+
+        myStr += '\n'
+        myStr += ' '
+        for j in range(len(self.contingency[0])):
+            val = ' ' + str(self.cSum[j])
+            for k in range(5-len(val)):
+                    val += ' '
+            myStr += val + ' '
+        
+        myStr += '\n'
+        return myStr
         
     def intersection(self, a, b):
         soma = 0

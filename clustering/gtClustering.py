@@ -23,7 +23,17 @@ class GroundTruthClustering(object):
         return self.clusters
     
     def printLog(self):
-        print("-- KNOWN CLUSTERING EXTRACTED FROM CLASS --\n");
+        print(self.getLog())
+        # print("-- KNOWN CLUSTERING EXTRACTED FROM CLASS --\n");
+        # for key in self.classMap:
+        #     print(key + ': ', self.clusters[self.classMap[key]].tostr())
+        #     print("")
+
+    def getLog(self):
+        logStr = "Ground Truth Clusters:\n"
+        logStr += "----------------------\n"
         for key in self.classMap:
-            print(key + ': ', self.clusters[self.classMap[key]].tostr())
-            print("")
+            logStr += key + ': ' + self.clusters[self.classMap[key]].tostr() + '\n\n'
+
+        logStr += '\n'
+        return logStr

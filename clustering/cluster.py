@@ -44,4 +44,5 @@ class Cluster(object):
 
             mystr += str(element) + ", "
 
+        mystr += '\n'
         return mystr

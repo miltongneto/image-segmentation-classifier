@@ -101,7 +101,7 @@ class HardClustering(object):
 
         return 
 
-    def run(self):
+    def findMinimum(self):
         self.t += 1
         self.findBestPrototypes()
         self.findBestWeights()
@@ -114,21 +114,29 @@ class HardClustering(object):
         return self.clusters
 
     def printLog(self):
-        print("\n\n[Hard-Clustering] NEW ITERATION:\n")
-        print("T: " + str(self.t) + ", K: " + str(len(self.clusters)) + ", P: " + str(len(self.dissimilarities)) + ", Q: " + str(self.clusters[0].prototype.getQ()) +"\n");
-        print("\n -- CLUSTER STATE --\n");
+        print(self.getLog())
+
+    def getLog(self):
+        logStr = "\nDynamic Hard Clustering Parameters:\n"
+        logStr += "T: " + str(self.t) + ", K: " + str(len(self.clusters)) + ", P: " + str(len(self.dissimilarities)) + ", Q: " + str(self.clusters[0].prototype.getQ()) +"\n"
+        logStr += "\nPartitionedClusters:\n"
+        logStr += "--------------------\n"
             
         for i in range(len(self.clusters)):
-            print("[" + str(i) + "]: ", self.clusters[i].tostr())
-            print("")
+            logStr += "[" + str(i) + "]: " + self.clusters[i].tostr() + '\n\n'
         
-        print("\n -- PROTOTYPE STATE --\n");
+        
+        logStr += "\n\nPrototypes:\n"
+        logStr += "-----------\n\n"
 
         for i in range(len(self.clusters)):
-            print("[" + str(i) + "]: ", self.clusters[i].prototype.tostr())
-            print("")
+            logStr += "[" + str(i) + "]: " + self.clusters[i].prototype.tostr() + '\n\n'
         
-        print("\n -- WEIGHT STATE --\n");
+        logStr += "\nDissimilarity Matrix Weights:\n"
+        logStr += "----------------------------\n\n"
         for i in range(len(self.dissimilarities)):
-            print("[" + str(i) + "]:" + str(self.dissimilarities[i].weight))
+            logStr += "[" + str(i) + "]:" + str(self.dissimilarities[i].weight) + '\n'
+
+        logStr += '\n'
+        return logStr
         

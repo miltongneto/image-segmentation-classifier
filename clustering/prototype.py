@@ -38,7 +38,6 @@ class Prototype(object):
         mystr = ''
         counter = 0
         for i in range(len(self.prototypes)):
-            print()
             counter += 1
 
             if counter == 10:

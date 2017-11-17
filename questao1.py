@@ -13,27 +13,37 @@ from scipy.spatial.distance import pdist
 import clustering
 
 if __name__ == '__main__':
-    
+    iterations = 1000
     train_classes = pd.read_csv('train.csv', header=0, index_col=None, usecols=range(0,1))
     train_shape_view = pd.read_csv('train.csv', header=0, index_col=None, usecols=range(1,10))
     train_rgb_view = pd.read_csv('train.csv', header=0, index_col=None, usecols=range(10,20))
     
-    #dm1 = pdist(train_shape_view.as_matrix(), 'euclidean')
-    #dm2 = pdist(train_rgb_view.as_matrix(), 'euclidean')
+    dic = {}
+    bestRandIndex = -99999
+    for i in range(iterations):
+        hdCluster = clustering.hardClustering.HardClustering(7, 3, train_shape_view, train_rgb_view)
+        find = hdCluster.findMinimum()
+        while not find:
+            find = hdCluster.findMinimum()
 
-    hdCluster = clustering.hardClustering.HardClustering(7, 10, train_shape_view, train_rgb_view)
-    for i in range(100):
-        if(hdCluster.run()):
-            print('Reached a local minimum')
-            break
+        log = hdCluster.getLog()
+        knownCluster = clustering.gtClustering.GroundTruthClustering(train_classes)
+        log += knownCluster.getLog()
 
-        print(str(i) + '/100 iterations done')
+        rand = clustering.randIndex.RandIndex(len(train_classes), hdCluster.getClusters(), knownCluster.getClusters())
+        log += rand.getLog()
+        randIndex = rand.getAdjusted()
+        dic[randIndex] = log
+        if randIndex > bestRandIndex:
+            bestRandIndex = randIndex
 
-    hdCluster.printLog()
+        print("Actual rand index: ", randIndex)    
+        print(i+1, '/', iterations,' iterations done')
 
-    knownCluster = clustering.gtClustering.GroundTruthClustering(train_classes)
-    knownCluster.printLog()
+    print(dic[bestRandIndex])
+    print("Best rand index: ", bestRandIndex)
 
-    rand = clustering.randIndex.RandIndex(len(train_classes), hdCluster.getClusters(), knownCluster.getClusters())
-    rand.printContingency()
-    print("\n -- AJUSTED RAND INDEX -- \n", rand.getAdjusted())
+    f = open('q1_output.txt','w')
+    f.write(dic[bestRandIndex])
+    f.write("\nBest rand index: " + str(bestRandIndex))
+    f.close()
