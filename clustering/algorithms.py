@@ -3,7 +3,7 @@ import clustering
 
 class HardClustering(object):
 
-    def closestCluster(self, point):
+    def getClosestCluster(self, point):
         cluster = -1
         closestDist = 999999
         for c in range(len(self.clusters)):
@@ -55,30 +55,30 @@ class HardClustering(object):
         for j in range(p):
             self.dissimilarities[j].weight = numerator/denominators[j]
 
-    def defineBestPartition(self):
-        stuck = True
+    def findBestPartition(self):
+        done = True
         for point in range(self.n):
-            shouldBelong = self.closestCluster(point)
+            shouldBelong = self.getClosestCluster(point)
             belongs = self.belongsTo[point]
             if(shouldBelong != belongs):
-                stuck = False
+                done = False
                 self.belongsTo[point] = shouldBelong
                 self.clusters[belongs].remove(point)
                 self.clusters[shouldBelong].insert(point)
 
-        return stuck
+        return done
 
     '''
     K = number of clusters
-    q = no idea
+    q = number of repesentative elements
     view = dataset
     ''' 
-    def __init__(self, k, q, shape, rgb):
+    def __init__(self, k, q, n, shape, rgb):
         self.k = k
         self.q = q
         self.shape = shape
         self.rgb = rgb
-        self.n = len(shape)
+        self.n = n
         self.t = 0
         #self.clusters = [None]*k
         self.clusters = []
@@ -88,26 +88,26 @@ class HardClustering(object):
             self.clusters.append(clustering.cluster.Cluster(self.n, q))
 
         self.dissimilarities = []
-        self.dissimilarities.append(clustering.dissimilarity.Dissimilarity(self.shape))
-        self.dissimilarities.append(clustering.dissimilarity.Dissimilarity(self.rgb))
+        self.dissimilarities.append(self.shape)
+        self.dissimilarities.append(self.rgb)
 
         #self.belongsTo = [None]*self.n
         self.belongsTo = []
         for point in range(self.n):
-            cluster = self.closestCluster(point)
+            cluster = self.getClosestCluster(point)
             #self.belongsTo[point] = cluster
             self.belongsTo.append(cluster)
             self.clusters[cluster].insert(point)
 
         return 
 
-    def findMinimum(self):
+    def findBestPartitions(self):
         self.t += 1
         self.findBestPrototypes()
         self.findBestWeights()
-        stuck = self.defineBestPartition()
+        done = self.findBestPartition()
 
-        return stuck
+        return done
 
 
     def getClusters(self):
@@ -123,20 +123,57 @@ class HardClustering(object):
         logStr += "--------------------\n"
             
         for i in range(len(self.clusters)):
-            logStr += "[" + str(i) + "]: " + self.clusters[i].tostr() + '\n\n'
+            logStr += "Cluster[" + str(i) + "]: " + self.clusters[i].tostr() + '\n\n'
         
         
         logStr += "\n\nPrototypes:\n"
         logStr += "-----------\n\n"
 
         for i in range(len(self.clusters)):
-            logStr += "[" + str(i) + "]: " + self.clusters[i].prototype.tostr() + '\n\n'
+            logStr += "P[" + str(i) + "]: " + self.clusters[i].prototype.tostr() + '\n\n'
         
         logStr += "\nDissimilarity Matrix Weights:\n"
         logStr += "----------------------------\n\n"
         for i in range(len(self.dissimilarities)):
-            logStr += "[" + str(i) + "]:" + str(self.dissimilarities[i].weight) + '\n'
+            logStr += "W[" + str(i) + "]:" + str(self.dissimilarities[i].weight) + '\n'
 
         logStr += '\n'
         return logStr
         
+
+class GroundTruthClustering(object):
+    def __init__(self, classes):
+        self.classMap = {}
+        self.clusters = []
+        self.c = 0
+
+        for i in range(len(classes)):
+            label = classes.values[i][0]
+            
+            if label not in self.classMap:
+                self.classMap[label] = self.c
+                self.c += 1
+                self.clusters.append(clustering.cluster.Cluster(len(classes), 0))
+
+            self.clusters[self.classMap[label]].insert(i)
+
+        return
+
+    def getClusters(self):
+        return self.clusters
+    
+    def printLog(self):
+        print(self.getLog())
+        # print("-- KNOWN CLUSTERING EXTRACTED FROM CLASS --\n");
+        # for key in self.classMap:
+        #     print(key + ': ', self.clusters[self.classMap[key]].tostr())
+        #     print("")
+
+    def getLog(self):
+        logStr = "Ground Truth Clusters:\n"
+        logStr += "----------------------\n"
+        for key in self.classMap:
+            logStr += key + ': ' + self.clusters[self.classMap[key]].tostr() + '\n\n'
+
+        logStr += '\n'
+        return logStr

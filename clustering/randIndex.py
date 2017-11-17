@@ -53,7 +53,7 @@ class RandIndex(object):
         
         myStr += ' '
         for j in range(len(self.contingency[0])):
-            myStr += " _____"
+            myStr += "______"
         myStr += '\n'
 
         myStr += '\n'

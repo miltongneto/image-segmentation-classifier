@@ -1,2 +1,2 @@
-__all__ = ['cluster', 'dissimilarity', 'gtClustering', 'hardClustering', 'prototype', 'randIndex']
+__all__ = ['cluster', 'dissimilarity', 'algorithms', 'prototype', 'randIndex']
 from . import *
