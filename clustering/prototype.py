@@ -25,7 +25,6 @@ class Prototype(object):
             for k in range(len(dissimilarities)):
                 d += dissimilarities[k].get(self.prototypes[i], j)
 
-
         return d
 
     def distUnweight(self, j, dissimilarity):

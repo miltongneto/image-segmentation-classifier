@@ -7,8 +7,10 @@ class RandIndex(object):
         self.b = b
         self.adjusted = 0
         self.n = n
-        self.rSum = [0]*len(a)
-        self.cSum = [0]*len(b)
+        self.rSum = np.arange(len(a))
+        self.rSum.fill(0)
+        self.cSum = np.arange(len(b))
+        self.cSum.fill(0)
 
         self.contingency = np.arange(len(a)*len(b)).reshape(len(a), len(b))
         for i in range(len(a)):

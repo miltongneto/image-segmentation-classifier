@@ -41,7 +41,7 @@ class HardClustering(object):
         p = len(self.dissimilarities)
         k = len(self.clusters)
         denominators = np.arange(p)
-        numerator = 1
+        numerator = 1.0
         for h in range(p):
             soma = 0
             for kzinho in range(k):
@@ -53,8 +53,7 @@ class HardClustering(object):
         numerator = pow(numerator, 1.0/p)
 
         for j in range(p):
-            self.dissimilarities[j].weigth = numerator/denominators[j]
-
+            self.dissimilarities[j].weight = numerator/denominators[j]
 
     def defineBestPartition(self):
         stuck = True
@@ -81,19 +80,23 @@ class HardClustering(object):
         self.rgb = rgb
         self.n = len(shape)
         self.t = 0
-        self.clusters = [None]*k
+        #self.clusters = [None]*k
+        self.clusters = []
 
         for i in range(k):
-            self.clusters[i] = clustering.cluster.Cluster(self.n, q)
+            #self.clusters[i] = clustering.cluster.Cluster(self.n, q)
+            self.clusters.append(clustering.cluster.Cluster(self.n, q))
 
-        self.dissimilarities = [None]*2
-        self.dissimilarities[0] = clustering.dissimilarity.Dissimilarity(self.shape)
-        self.dissimilarities[1] = clustering.dissimilarity.Dissimilarity(self.rgb)
+        self.dissimilarities = []
+        self.dissimilarities.append(clustering.dissimilarity.Dissimilarity(self.shape))
+        self.dissimilarities.append(clustering.dissimilarity.Dissimilarity(self.rgb))
 
-        self.belongsTo = [None]*self.n
+        #self.belongsTo = [None]*self.n
+        self.belongsTo = []
         for point in range(self.n):
             cluster = self.closestCluster(point)
-            self.belongsTo[point] = cluster
+            #self.belongsTo[point] = cluster
+            self.belongsTo.append(cluster)
             self.clusters[cluster].insert(point)
 
         return 
